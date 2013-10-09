@@ -322,7 +322,7 @@ class rc_openpgpjs extends rcube_plugin
    */
   function message_compose($args) {
     if ($f = $this->create_pubkey_dummy()) {
-      $args['attachments'][] = array('path' => $f, 'name' => "pubkey.asc", 'mimetype' => "text/plain");
+      $args['attachments'][] = array('path' => $f, 'name' => "pubkey_".$_SESSION['username'].".asc", 'mimetype' => "text/plain");
     }
     return $args;
   }
