@@ -459,11 +459,7 @@ if(window.rcmail) {
   function removePublicKeyAttachment() {
     $("#attachment-list").each(function() {
       $(this).find('li').each(function() {
-<<<<<<< HEAD
-        if ($(this).text().indexOf('signature.asc') >= 0) {
-=======
         if ($(this).text().indexOf('pubkey.asc') >= 0) {
->>>>>>> upstream/master
           rcmail.command('remove-attachment', $(this).attr('id'));
           return false;
         }
