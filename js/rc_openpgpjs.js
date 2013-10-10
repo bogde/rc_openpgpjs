@@ -461,7 +461,7 @@ if(window.rcmail) {
   function removePublicKeyAttachment() {
     $("#attachment-list").each(function() {
       $(this).find('li').each(function() {
-        if ($(this).text().indexOf('pubkey_') >= 0) {
+        if ($(this).text().indexOf('pubkey.asc') >= 0) {
           rcmail.command('remove-attachment', $(this).attr('id'));
           return false;
         }
