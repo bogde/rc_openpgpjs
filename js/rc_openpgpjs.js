@@ -330,10 +330,12 @@ if(window.rcmail) {
     }
 
     // send the user's public key to the server so it can be sent as attachment
+    var tmpkey = fetchSendersPubkey();
+    var key_id = util.hexstrdump(tmpkey.getKeyId()).toUpperCase().substring(8);
     var pubkey_sender = fetchSendersPubkey(true);
     if (pubkey_sender) {
         var lock = rcmail.set_busy(true, 'loading');
-        rcmail.http_post('plugin.pubkey_save', { _pubkey: pubkey_sender }, lock);
+        rcmail.http_post('plugin.pubkey_save', { _pubkey: pubkey_sender, _keyid: key_id }, lock);
     }
     // end send user's public key to the server
 

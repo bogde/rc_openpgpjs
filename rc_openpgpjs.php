@@ -258,14 +258,29 @@ class rc_openpgpjs extends rcube_plugin
 
   /**
    * Saves the public key to a temporary file so we can send it as attachment
+   * Also renames the attachment
    */
   function pubkey_save() {
     $rcmail = rcmail::get_instance();
     $temp_dir = unslashify($rcmail->config->get('temp_dir'));
-    $file = $temp_dir."/".md5($_SESSION['username']).".asc";
+    $file = $temp_dir."/pubkey-".md5($_SESSION['username']).".asc";
     if(file_exists($file)) {
       $pubkey = trim(get_input_value('_pubkey', RCUBE_INPUT_POST));
       file_put_contents($file, $pubkey);
+
+      // rename attachment to pubkey_[key id].asc
+      $keyid  = trim(get_input_value('_keyid', RCUBE_INPUT_POST));
+      foreach ($_SESSION as $key => $value) {
+        if (0 === strpos($key, 'compose_data_')) {
+          $att = $value['attachments'];
+          foreach ($att as $k => $v) {
+            if ($v['path'] == $temp_dir."/pubkey-".md5($_SESSION['username']).".asc") {
+              $_SESSION[$key]['attachments'][$k]['name'] = 'pubkey_'.$keyid.'.asc';
+            }
+          }
+        }
+      }
+      // end rename attachment
     }
   }
 
@@ -322,7 +337,7 @@ class rc_openpgpjs extends rcube_plugin
    */
   function message_compose($args) {
     if ($f = $this->create_pubkey_dummy()) {
-      $args['attachments'][] = array('path' => $f, 'name' => "pubkey_".$_SESSION['username'].".asc", 'mimetype' => "text/plain");
+      $args['attachments'][] = array('path' => $f, 'name' => "pubkey.asc", 'mimetype' => "text/plain");
     }
     return $args;
   }
@@ -334,7 +349,7 @@ class rc_openpgpjs extends rcube_plugin
   function unlink_pubkey($args) {
     $rcmail = rcmail::get_instance();
     $temp_dir = unslashify($rcmail->config->get('temp_dir'));
-    $file = $temp_dir."/".md5($_SESSION['username']).".asc";
+    $file = $temp_dir."/pubkey-".md5($_SESSION['username']).".asc";
     if(file_exists($file)) {
       @unlink($file);
     }
@@ -347,7 +362,7 @@ class rc_openpgpjs extends rcube_plugin
     $rcmail = rcmail::get_instance();
     $temp_dir = unslashify($rcmail->config->get('temp_dir'));
     if (!empty($temp_dir)) {
-      $file = $temp_dir."/".md5($_SESSION['username']).".asc";
+      $file = $temp_dir."/pubkey-".md5($_SESSION['username']).".asc";
       if(file_exists($file))
         @unlink($file);
       if (file_put_contents($file, " ")) {
